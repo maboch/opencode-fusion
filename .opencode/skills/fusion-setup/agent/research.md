@@ -8,6 +8,7 @@ permission:
   websearch: allow
   task:
     "*": deny
+    "rtk*": allow
     "explore": allow
 ---
 

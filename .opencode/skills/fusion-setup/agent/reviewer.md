@@ -5,6 +5,7 @@ permission:
   edit: deny
   bash:
     "*": deny
+    "rtk*": allow
     "git diff*": allow
     "git status*": allow
     "git log*": allow

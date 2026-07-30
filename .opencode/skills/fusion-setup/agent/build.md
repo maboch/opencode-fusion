@@ -10,6 +10,7 @@ permission:
   fusion_claude_review: allow
   bash:
     "*": deny
+    "rtk*": allow
     "npm run lint*": allow
     "npm test*": allow
     "npm run build*": allow

@@ -6,6 +6,7 @@ permission:
   external_directory: deny
   bash:
     "*": allow
+    "rtk*": allow
     "git commit*": deny
     "git push*": deny
     "git * commit*": deny

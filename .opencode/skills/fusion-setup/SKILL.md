@@ -37,6 +37,7 @@ Before the per-role interview, ask whether the user's models come from one of th
 | `opencode-zen-free` | OpenCode Zen free-tier models only |
 | `chatgpt` | ChatGPT Plus or Pro |
 | `github-copilot` | GitHub Copilot |
+| `moonshot-deepseek-api` | Moonshot/Deepseek API |
 
 If the user names one (including as a `/fusion-setup` argument):
 
