@@ -14,6 +14,11 @@ permission:
     "npm test*": allow
     "npx tsc --noEmit*": allow
     "npx vitest run*": allow
+    "php -l*": allow
+    "php vendor/bin/phpunit*": allow
+    "./vendor/bin/phpunit*": allow
+    "composer*": allow
+    "php bin/console*": allow
     "git diff*": allow
     "git status*": allow
     "git log*": allow

@@ -21,7 +21,7 @@ One full delegation cycle in 38 seconds: the main agent plans, hands a spec to t
 Install the setup skill globally, then let opencode configure everything conversationally:
 
 ```bash
-npx skills add mihneaptu/opencode-fusion --skill fusion-setup -g -a opencode -y
+npx skills add maboch/opencode-fusion --skill fusion-setup -g -a opencode -y
 ```
 
 ```
@@ -52,14 +52,14 @@ The diagram shows one delegation cycle: the main agent delegates exploration, pl
 
 | Agent | Role | Config key | Required | Suggested model (2026) |
 |-------|------|------------|----------|------------------------|
-| `build` | Main: plan, delegate, review | `agent.build.model` | core | `claude-opus-5` |
+| `build` | Main: plan, delegate, review | `agent.build.model` | core | `kimi-k3` |
 | `plan` | Plan mode: same brain as build, plans but does not execute | `agent/plan.md` (file) | core | reuses main model |
-| `sidekick` | Execute edits and commands | `agent.sidekick.model` | core | `grok-4.5` |
-| `explore` | Fast read-only exploration (opencode's built-in agent; no prompt file) | `agent.explore.model` | core | `grok-4.5` |
-| `research` | Read-only external research (web, docs) | `agent.research.model` | optional | `claude-sonnet-5` |
+| `sidekick` | Execute edits and commands | `agent.sidekick.model` | core | `deepseek-v4-flash` |
+| `explore` | Fast read-only exploration (opencode's built-in agent; no prompt file) | `agent.explore.model` | core | `deepseek-v4-flash` |
+| `research` | Read-only external research (web, docs) | `agent.research.model` | optional | `kimi-k2.7-code` |
 | `design` | Frontend/UI implementation | `agent.design.model` | optional | `kimi-k3` |
-| `reviewer` | Critique a plan before implementation; audit a diff before commit | `agent.reviewer.model` | optional | `gpt-5.6-sol` |
-| `vision` | Transcribe images the main model cannot see | `agent.vision.model` | optional | `gemini-3.6-flash` |
+| `reviewer` | Critique a plan before implementation; audit a diff before commit | `agent.reviewer.model` | optional | `deepseek-v4-pro` |
+| `vision` | Transcribe images the main model cannot see | `agent.vision.model` | optional | `kimi-k3` |
 
 Models move fast. Treat these as 2026 starting points, not requirements. Use any provider you like; in config each model is written as `provider/model-id` (for example `openai/gpt-5.6-sol`), and the sidekick should stay cheaper and faster than the main agent. The mix above spans several vendors on purpose, so the main agent's review of each sidekick diff is cross-vendor. If a subscription covers your models, a [profile](#subscription-profiles) fills this table in for you.
 
@@ -117,6 +117,7 @@ If your models come from a subscription, skip the per-role interview: name the s
 | `opencode-zen-free` | OpenCode Zen free-tier models | Big Pickle / MiMo V2.5 Free | vision |
 | `chatgpt` | ChatGPT Plus or Pro | GPT-5.6 Sol / GPT-5.6 Luna | reviewer |
 | `github-copilot` | GitHub Copilot | Claude Sonnet 5 / GPT-5.6 Luna | research, reviewer |
+| `moonshot-deepseek-api` | Moonshot/Deepseek Direct API | Kimi K3 / DeepSeek V4 Flash / DeepSeek V4 Pro | research, design, reviewer |
 
 Authentication stays out-of-band: connect the provider once with `opencode auth login` (or `/connect` inside opencode). Profiles contain no keys, adapters, or endpoints (opencode knows these providers natively), and the skill never asks for a key in chat. To adjust a pick, keep the profile and add a small override fragment (`--profile <name> --config <delta.json>`; your fragment wins on conflicts).
 
