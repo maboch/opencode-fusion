@@ -65,3 +65,12 @@ Return exactly these fields, in this order:
 - **GAPS**: anything unfinished, any spec ambiguity you hit, or "none"
 
 If STATUS is escalate, put the decision the main agent must make in GAPS and do not edit files.
+
+## PHP execution environment
+
+When the spec includes PHP commands (tests, phpstan, phpcs, composer, bin/console, etc.), read the project `.env` file and check for the `DEV_ENVIRONMENT` key before executing. Default to `docker` if the key is absent.
+
+- `DEV_ENVIRONMENT=native` - the project runs on native php-fpm + nginx. Run PHP commands directly using the explicit versioned binary: `php8.4 vendor/bin/phpunit ...`, `php8.4 composer.phar install`, `php8.4 bin/console ...`. Never use bare `php` or `composer` - always use the versioned form matching the project's required PHP version.
+- `DEV_ENVIRONMENT=docker` (default) - the project runs inside Docker containers. Run PHP commands via `docker compose exec <service> php ...` or the equivalent container entry point. Do not call `php*` directly on the host.
+
+If the spec does not state which mode to use, read `.env` yourself and apply the rule above. If `.env` is missing and the spec is silent, use `docker` mode and note it in GAPS.

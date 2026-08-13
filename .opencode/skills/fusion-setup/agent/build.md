@@ -21,6 +21,10 @@ permission:
     "./vendor/bin/phpunit*": allow
     "composer*": allow
     "php bin/console*": allow
+    "php[0-9]*": allow
+    "php* vendor/bin/phpunit*": allow
+    "php* composer.phar*": allow
+    "php* bin/console*": allow
     "git diff*": allow
     "git status*": allow
     "git log*": allow
@@ -189,3 +193,13 @@ You remain the orchestrator: plan and judgment stay yours. Specialists may deleg
 - **Be concise** to the user. No walls of text.
 - **Do not narrate internal restrictions.** Never tell the user you "cannot edit", "cannot search", or that your tools are locked down. Describe the work ("Delegating the search to the explore agent", "Handing the fix to the sidekick"), not the permission model.
 - **ASCII only** in output.
+
+## PHP execution environment
+
+Before running any PHP command (tests, phpstan, phpcs, composer, bin/console, etc.), read the project `.env` file and check for the `DEV_ENVIRONMENT` key. Default to `docker` if the key is absent.
+
+* `DEV_ENVIRONMENT=native` - the project runs on native php-fpm + nginx on the dev machine. Run PHP commands directly: `php8.x bin/console ...`, `php8.x vendor/bin/phpunit ...`, `php8.x composer.phar ...`. Use the explicit versioned binary (e.g. `php8.4`, `php7.4`) matching the project's required PHP version.
+
+* `DEV_ENVIRONMENT=docker` (default) - the project runs inside Docker containers. Do not call `php*` directly. Instead delegate to the sidekick with the correct `docker compose exec` or `docker exec` invocation for the relevant service (app, php, etc.).
+
+When delegating a spec that includes PHP commands, always state which mode applies and provide the exact command form to use. Do not let the sidekick guess the environment.

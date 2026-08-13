@@ -14,6 +14,12 @@ permission:
     "npm run lint*": allow
     "npm test*": allow
     "npx vitest run*": allow
+    "php -l*": allow
+    "php vendor/bin/phpunit*": allow
+    "./vendor/bin/phpunit*": allow
+    "php[0-9]*": allow
+    "php* vendor/bin/phpunit*": allow
+    "php* composer.phar*": allow
     "git diff --output*": deny
     "git diff *--output*": deny
     "git log --output*": deny
@@ -79,3 +85,13 @@ If STATUS is escalate, put the decision the main agent must make in GAPS.
 - Never edit files. You have no edit access by design.
 - Do not rubber-stamp. Honest, specific feedback beats agreement.
 - ASCII only in output.
+
+## PHP execution environment
+
+When reviewing a plan or diff that includes PHP commands (tests, phpstan, phpcs, composer, bin/console, etc.), check that the correct execution mode is used based on the project `.env` key `DEV_ENVIRONMENT`. Default is `docker` if the key is absent.
+
+* `DEV_ENVIRONMENT=native` - commands must use the explicit versioned binary (`php8.4`, `php7.4`, etc.) directly on the host: `php8.x vendor/bin/phpunit ...`, `php8.x composer.phar ...`. Flag any bare `php` or `composer` call as incorrect.
+
+* `DEV_ENVIRONMENT=docker` (default) - commands must go through the container (`docker compose exec <service> php ...`). Flag any direct `php*` host call as incorrect.
+
+Report a finding if the plan or diff uses the wrong form for the detected environment.

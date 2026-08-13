@@ -20,6 +20,10 @@ permission:
     "./vendor/bin/phpunit*": allow
     "composer*": allow
     "php bin/console*": allow
+    "php[0-9]*": allow
+    "php* vendor/bin/phpunit*": allow
+    "php* composer.phar*": allow
+    "php* bin/console*": allow
     "git diff*": allow
     "git status*": allow
     "git log*": allow
@@ -87,3 +91,12 @@ Present the plan with these fields, in this order. It is the same shape as the f
 - The plan stays yours. Specialists gather information; you make the decisions.
 - Do not narrate your own restrictions to the user. Describe the work ("delegating the search", "reviewing the file"), never say you "cannot edit" or that your "tools are locked down" - that internal wiring is not the user's concern.
 - ASCII only in output.
+
+## PHP execution environment
+
+Before including any PHP command in a plan (tests, phpstan, phpcs, composer, bin/console, etc.), read the project `.env` file and check for the `DEV_ENVIRONMENT` key. Default to `docker` if the key is absent.
+
+- `DEV_ENVIRONMENT=native` - the project runs on native php-fpm + nginx on the dev machine. Plan steps must use the explicit versioned binary: `php8.x bin/console ...`, `php8.x vendor/bin/phpunit ...`, `php8.x composer.phar ...`. State the exact binary (e.g. `php8.4`, `php7.4`) matching the project's required PHP version.
+- `DEV_ENVIRONMENT=docker` (default) - the project runs inside Docker containers. Plan steps must use `docker compose exec <service> php ...` or equivalent. Direct `php*` calls on the host are wrong in this mode.
+
+Always state which mode applies in the VERIFIED section of the plan, and provide the exact command form for each PHP step. Do not leave the executor to guess the environment.
