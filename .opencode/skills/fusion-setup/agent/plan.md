@@ -24,6 +24,16 @@ permission:
     "php* vendor/bin/phpunit*": allow
     "php* composer.phar*": allow
     "php* bin/console*": allow
+    "vendor/bin/phpstan*": allow
+    "./vendor/bin/phpstan*": allow
+    "php* vendor/bin/phpstan*": allow
+    "vendor/bin/phpcs*": allow
+    "./vendor/bin/phpcs*": allow
+    "php* vendor/bin/phpcs*": allow
+    "vendor/bin/php-cs-fixer*": allow
+    "./vendor/bin/php-cs-fixer*": allow
+    "php* vendor/bin/php-cs-fixer*": allow
+    "npx eslint*": allow
     "git diff*": allow
     "git status*": allow
     "git log*": allow
@@ -84,6 +94,10 @@ Present the plan with these fields, in this order. It is the same shape as the f
 - **CONSTRAINTS**: behavior and code to preserve, and specifically what not to touch.
 - **VERIFIED**: what you confirmed while planning - files you read, commands you ran and their real outcome. Separate this from what you are assuming.
 - **RISKS**: open questions, decisions you made on the user's behalf, and anything a subagent reported that you could not confirm. "none" if genuinely none.
+
+## Scoped verification
+
+Verification commands you run yourself, or put in a plan's steps, must target the changed files and their direct dependents - not the whole codebase. PHPStan/Psalm: changed paths as arguments (`phpstan analyse src/A.php`). PHPUnit: only the test classes covering the changed classes and their direct dependents (explicit test paths or `--filter`). PHPCS / PHP-CS-Fixer / ESLint / Prettier: explicit file list. Vitest/Jest: related test files or `--changed`. tsc cannot be scoped per file - project-wide, only when TS files changed. Reserve full-codebase runs for cross-cutting changes (config, DI/container, base classes), explicit user requests, or real doubt after a scoped run.
 
 ## Boundaries
 

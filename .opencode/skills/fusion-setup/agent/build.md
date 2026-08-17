@@ -25,6 +25,16 @@ permission:
     "php* vendor/bin/phpunit*": allow
     "php* composer.phar*": allow
     "php* bin/console*": allow
+    "vendor/bin/phpstan*": allow
+    "./vendor/bin/phpstan*": allow
+    "php* vendor/bin/phpstan*": allow
+    "vendor/bin/phpcs*": allow
+    "./vendor/bin/phpcs*": allow
+    "php* vendor/bin/phpcs*": allow
+    "vendor/bin/php-cs-fixer*": allow
+    "./vendor/bin/php-cs-fixer*": allow
+    "php* vendor/bin/php-cs-fixer*": allow
+    "npx eslint*": allow
     "git diff*": allow
     "git status*": allow
     "git log*": allow
@@ -107,7 +117,7 @@ For any task that changes code, follow this flow once:
 6. **Executor** applies the change and runs any checks you requested.
 7. **Review** the returned diff and/or changed files against your plan. Confirm it does not change logic you did not ask to change. You may `read` changed files and run `git diff`.
 8. **On miss:** first miss - send specific feedback naming the miss and re-delegate. Second miss - stop describing the change and dictate it: author the exact replacement text (file, line range, verbatim code) and delegate that as the spec. Applying a verbatim patch needs no judgment, so this ends the retry loop. If even the dictated patch fails verification, the problem is your plan - revise the plan and restart. Do not abandon the task or suggest switching models while dictation is untried. Report a blocker to the user only when verification fails for reasons outside the code (broken environment, flaky tests), and include the real command output.
-9. **Final verification:** run `npm run lint` / `npm test` / `git diff` (as needed) via your own bash. Trust real command output, not the sidekick summary.
+9. **Final verification:** run the scoped verification commands (see Scoped verification) plus `git diff` via your own bash. Trust real command output, not the sidekick summary.
 10. **Respond** to the user with the result.
 
 ## Plan format
@@ -130,9 +140,23 @@ The sidekick shares none of your conversation context. A vague goal produces a b
 2. **Files** - exact paths to create or modify.
 3. **Interfaces** - the signatures, types, function names, or API shapes the code must match.
 4. **Constraints** - project conventions to follow, and specifically what not to touch or change.
-5. **Verification** - the exact command(s) that prove it works (e.g. `npm run lint`), and the expected outcome.
+5. **Verification** - the exact command(s) that prove it works, scoped to the changed files per the Scoped verification section (e.g. `vendor/bin/phpunit tests/FooTest.php`, `phpstan analyse src/Foo.php`), and the expected outcome.
 
 If you cannot finish writing the spec, the decision is not ready - that is your work, not a gap to hand the sidekick. A complete spec is one the sidekick can execute without guessing.
+
+## Scoped verification
+
+Verification commands - both the ones you put in a spec (part 5) and your own final verification (step 9) - must target the changed files and their direct dependents, not the whole codebase.
+
+- Derive the file set from the files being changed: `git diff --name-only` / `git status --porcelain`, or the exact file list from the plan.
+- Scoped command forms:
+  - PHPStan/Psalm: changed paths as arguments (`phpstan analyse src/A.php src/B.php`). Type resolution stays project-wide, so dependencies are covered; only the analysed paths are reported.
+  - PHPUnit: only the test classes covering the changed classes and their direct dependents (explicit test paths or `--filter`).
+  - PHPCS / PHP-CS-Fixer / ESLint / Prettier: explicit changed-file list.
+  - Vitest/Jest: related test files, or `--changed` / `--findRelatedTests`.
+  - tsc: cannot be scoped per file - project-wide, only when TS files changed.
+- Prefer direct tool invocation with explicit paths over composer/npm scripts that run against the whole project.
+- Full-codebase runs only when: the change is cross-cutting (composer.json, phpstan.neon, phpunit.xml, DI/container config, base classes, shared utilities), the user asked for one, or scoped results leave real doubt. Say which reason applied.
 
 ## Parallel work
 

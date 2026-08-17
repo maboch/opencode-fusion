@@ -66,6 +66,21 @@ Return exactly these fields, in this order:
 
 If STATUS is escalate, put the decision the main agent must make in GAPS and do not edit files.
 
+## Scoped verification
+
+Run tests and static analysis only on the files changed in this task and their direct dependents - never on the whole codebase by default.
+
+1. Determine the change set first: the files named in the spec plus your actual edits (`git status --porcelain`, `git diff --name-only` for staged + unstaged).
+2. Scope each tool to that set:
+   - PHPStan/Psalm: pass the changed paths as arguments (`phpstan analyse src/A.php src/B.php`). Type resolution stays project-wide, so dependencies are covered; only the analysed paths are reported. CLI paths override `paths:` from the tool config.
+   - PHPUnit: run only the test classes covering the changed classes and their direct dependents - explicit test file paths (`vendor/bin/phpunit tests/A/FooTest.php`) or `--filter`.
+   - PHPCS / PHP-CS-Fixer / ESLint / Prettier: pass the explicit changed-file list.
+   - Vitest/Jest: pass the related test files, or use `--changed` / `--findRelatedTests` / `--changedSince` when the project supports them.
+   - tsc: cannot be scoped per file - run it project-wide, and only when TS files changed.
+3. Prefer invoking the tool directly with explicit paths over composer/npm scripts that run against the whole project.
+4. Full-codebase runs remain valid only when: the change is cross-cutting (composer.json, phpstan.neon, phpunit.xml, DI/container config, base classes, widely-used utilities), the spec explicitly asks for a full run, or scoped results leave real doubt. Say which reason applied in VERIFIED.
+5. The PHP execution mode rule (DEV_ENVIRONMENT, below) still applies to every scoped command.
+
 ## PHP execution environment
 
 When the spec includes PHP commands (tests, phpstan, phpcs, composer, bin/console, etc.), read the project `.env` file and check for the `DEV_ENVIRONMENT` key before executing. Default to `docker` if the key is absent.
